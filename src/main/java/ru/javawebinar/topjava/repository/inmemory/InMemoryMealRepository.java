@@ -8,15 +8,25 @@ import ru.javawebinar.topjava.repository.MealRepository;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Repository
 public class InMemoryMealRepository implements MealRepository{
     private static final Logger log = LoggerFactory.getLogger(InMemoryMealRepository.class);
 
+    private Map<Integer, Meal> repository = new ConcurrentHashMap<>();
+    private AtomicInteger counter = new AtomicInteger();
+
 
     @Override
     public Meal save(Meal meal) {
         log.info("save {}", meal);
+        if (meal.isNew()) {
+            meal.setId(counter.incrementAndGet());
+            repository.put(meal.getId(), meal);
+        }
         return meal;
     }
 
